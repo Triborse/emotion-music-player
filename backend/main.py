@@ -55,13 +55,10 @@ async def upload_image(file: UploadFile = File(...)):
 
     image = cv2.imdecode(image_array, cv2.IMREAD_GRAYSCALE)
 
-    # Resize to model input size
     image = cv2.resize(image, (48, 48))
 
-    # Normalize
     image = image.astype("float32") / 255.0
 
-    # Add batch + channel dimensions
     image = image.reshape(1, 48, 48, 1)
 
     prediction = model.predict(image)
@@ -71,8 +68,11 @@ async def upload_image(file: UploadFile = File(...)):
 
     emotion = EMOTIONS[emotion_index]
 
+    print(
+        f"Emotion: {emotion}, Confidence: {round(confidence,4)}"
+    )
+
     return {
-        "emotion" : emotion,
-        "confidence" : round(confidence,4)
-        
+        "emotion": emotion,
+        "confidence": round(confidence, 4)
     }
