@@ -6,6 +6,11 @@ import cv2
 import json
 from fastapi.middleware.cors import CORSMiddleware
 
+face_cascade = cv2.CascadeClassifier(
+    cv2.data.haarcascades +
+    "haarcascade_frontalface_default.xml"
+)
+
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
@@ -54,6 +59,21 @@ async def upload_image(file: UploadFile = File(...)):
     image_array = np.frombuffer(contents, np.uint8)
 
     image = cv2.imdecode(image_array, cv2.IMREAD_GRAYSCALE)
+
+    faces = face_cascade.detectMultiScale(
+        image,
+        scaleFactor=1.1,
+        minNeighbors=5,
+        minSize=(50, 50)
+    )
+
+    if len(faces) > 0:
+        x, y, w, h = max(
+            faces,
+            key=lambda face: face[2] * face[3]
+        )
+
+        image = image[y:y+h, x:x+w]
 
     image = cv2.resize(image, (48, 48))
 
