@@ -6,6 +6,25 @@ const api = axios.create({
   timeout: 5000,
 });
 
+export const predictEmotion = async (imageBlob) => {
+  const formData = new FormData();
+
+  formData.append("file", imageBlob, "frame.jpg");
+
+  const response = await axios.post(
+    "http://localhost:8000/upload",
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+
+  return response.data;
+};
+
+
 // Storage keys for persisting data in browser to ensure premium demo experience
 const STORAGE_KEYS = {
   FAVORITES: 'aura_favorites',

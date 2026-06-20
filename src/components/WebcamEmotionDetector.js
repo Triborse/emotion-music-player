@@ -1,5 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { setMockEmotion, addCSVHistoryEntry } from '../services/api';
+import {
+  setMockEmotion,
+  addCSVHistoryEntry,
+  predictEmotion
+} from '../services/api';
 
 const EMOTIONS = ['Happy', 'Sad', 'Energetic', 'Calm', 'Neutral'];
 
@@ -70,6 +74,26 @@ const WebcamEmotionDetector = ({ currentEmotion, confidence, onEmotionDetected, 
     setIsAnalyzing(false);
   };
 
+
+const captureFrame = () => {
+  const video = videoRef.current;
+
+  if (!video) return null;
+
+  const canvas = document.createElement("canvas");
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+
+  const ctx = canvas.getContext("2d");
+  ctx.drawImage(video, 0, 0);
+
+  return new Promise((resolve) => {
+    canvas.toBlob((blob) => {
+      resolve(blob);
+    }, "image/jpeg");
+  });
+};
+
   const startAnalysisLoop = () => {
     stopAnalysisLoop(); // Reset any existing
     analysisTimerRef.current = setInterval(async () => {
@@ -77,18 +101,29 @@ const WebcamEmotionDetector = ({ currentEmotion, confidence, onEmotionDetected, 
       setInferenceTime(Math.round(40 + Math.random() * 20));
       setFps(Math.round(28 + Math.random() * 4));
       
-      // Randomly select a new emotion or keep current with some changes
-      const randomEmotion = EMOTIONS[Math.floor(Math.random() * EMOTIONS.length)];
-      const randomConf = parseFloat((0.75 + Math.random() * 0.22).toFixed(2));
-      
-      // Write mock data using the service API
-      setMockEmotion(randomEmotion, randomConf);
-      
-      // Log to history CSV simulation
-      await addCSVHistoryEntry(randomEmotion, randomConf, currentSongName || 'Simulated Track');
+      try {
+  const imageBlob = await captureFrame();
 
-      // Trigger state updates
-      onEmotionDetected(randomEmotion, randomConf);
+  if (!imageBlob) return;
+
+  const result = await predictEmotion(imageBlob);
+
+  const emotion = result.emotion;
+  const confidence = result.confidence;
+
+  setMockEmotion(emotion, confidence);
+
+  await addCSVHistoryEntry(
+    emotion,
+    confidence,
+    currentSongName || "Detected Track"
+  );
+
+  onEmotionDetected(emotion, confidence);
+
+} catch (error) {
+  console.error("Prediction failed:", error);
+}
     }, scanInterval * 1000);
   };
 
