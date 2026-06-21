@@ -78,7 +78,7 @@ setCurrentSong({
       const songData = await fetchBackendSong(
   newEmotion
 );
-
+console.log("SONG DATA:", songData);
 setCurrentSong({
   title: songData.song,
   artist: "Aura Music Engine",
