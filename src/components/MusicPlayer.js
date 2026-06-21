@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 const MusicPlayer = ({ currentSong, playbackMethod }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(35);
+  const audioRef = useRef(null);
 
   // Playback timer simulation
   useEffect(() => {
@@ -22,10 +23,18 @@ const MusicPlayer = ({ currentSong, playbackMethod }) => {
   }, [isPlaying]);
 
   // Reset progress when song changes
-  useEffect(() => {
-    setProgress(0);
-    setIsPlaying(true);
-  }, [currentSong]);
+ useEffect(() => {
+  setProgress(0);
+  setIsPlaying(true);
+
+  if (audioRef.current && currentSong?.audioUrl) {
+    audioRef.current.load();
+
+    audioRef.current.play().catch((err) => {
+      console.log("Audio autoplay blocked:", err);
+    });
+  }
+}, [currentSong]);
 
   const togglePlay = () => setIsPlaying(!isPlaying);
 
@@ -52,6 +61,15 @@ const MusicPlayer = ({ currentSong, playbackMethod }) => {
 
   return (
     <div className="glass-panel rounded-2xl overflow-hidden flex flex-col group transition-all duration-300 hover:shadow-2xl border border-slate-700/40 relative shadow-2xl h-full">
+      <audio
+      ref={audioRef}
+      controls={false}
+    >
+      <source
+        src={currentSong?.audioUrl}
+        type="audio/mpeg"
+      />
+    </audio>
       {/* Album Art Area */}
       <div className="relative w-full aspect-video sm:aspect-[21/9] bg-slate-950/80 overflow-hidden">
         <img 

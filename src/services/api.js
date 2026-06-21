@@ -131,28 +131,33 @@ export const setMockEmotion = (emotion, confidence = 0.85) => {
 };
 
 export const fetchRecommendedMusic = async (emotion) => {
-  await new Promise(resolve => setTimeout(resolve, 300));
-  const emotionKey = Object.keys(favorites).find(k => k.toLowerCase() === emotion.toLowerCase()) || 'Neutral';
-  const songs = favorites[emotionKey];
-  
-  if (!songs || songs.length === 0) {
-    return {
-      title: 'Aura Ambient Beats',
-      artist: 'Aura AI Generator',
-      url: 'https://open.spotify.com',
-      localPath: 'C:/music/default.mp3',
-      albumArt: ALBUM_ARTS.Neutral,
-      emotion: emotionKey
-    };
-  }
+  try {
+    const response = await axios.get(
+      `http://localhost:8000/recommend/${emotion}`
+    );
 
-  // Choose a random song from favorites for this emotion
-  const song = songs[Math.floor(Math.random() * songs.length)];
-  return {
-    ...song,
-    albumArt: ALBUM_ARTS[emotionKey] || ALBUM_ARTS.Neutral,
-    emotion: emotionKey
-  };
+    const data = response.data;
+
+    return {
+      title: data.song,
+      artist: "Aura Music Engine",
+      emotion: data.emotion,
+
+      albumArt:
+        ALBUM_ARTS[data.emotion] ||
+        ALBUM_ARTS.Neutral,
+
+      audioUrl:
+        `http://localhost:8000/song/${data.emotion}/${data.song}`
+    };
+  } catch (error) {
+    console.error(
+      "Failed to fetch music:",
+      error
+    );
+
+    return null;
+  }
 };
 
 // Playback configurations
