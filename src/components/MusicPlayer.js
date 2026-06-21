@@ -16,10 +16,14 @@ useEffect(() => {
     }
   };
 
-  const handleEnded = () => {
+ const handleEnded = () => {
+  setProgress(0);
+  if (onNext) {
+    onNext();
+  } else {
     setIsPlaying(false);
-    setProgress(0);
-  };
+  }
+};
 
   audio.addEventListener('timeupdate', handleTimeUpdate);
   audio.addEventListener('ended', handleEnded);

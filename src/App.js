@@ -26,7 +26,9 @@ function App() {
   const [historyLogs, setHistoryLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [playlist, setPlaylist] = useState([]);
-const [currentSongIndex, setCurrentSongIndex] = useState(0);
+  const [currentSongIndex, setCurrentSongIndex] = useState(0);
+  const [emotionBuffer, setEmotionBuffer] = useState([]);
+const BUFFER_SIZE = 5; // how many recent detections to consider
 
   // Status simulation heartbeats
   const [cameraActive, setCameraActive] = useState(false);
@@ -42,6 +44,26 @@ const [currentSongIndex, setCurrentSongIndex] = useState(0);
   audioUrl: `http://localhost:8000/song/${emotion}/${filename}`,
   albumArt: "https://images.unsplash.com/photo-1493225457124-a1a2a5f5f92d"
 });
+
+const getMajorityEmotion = (buffer) => {
+  const counts = {};
+
+  buffer.forEach((emotion) => {
+    counts[emotion] = (counts[emotion] || 0) + 1;
+  });
+
+  let majorityEmotion = buffer[0];
+  let maxCount = 0;
+
+  for (const emotion in counts) {
+    if (counts[emotion] > maxCount) {
+      maxCount = counts[emotion];
+      majorityEmotion = emotion;
+    }
+  }
+
+  return majorityEmotion;
+};
 
 const loadPlaylistForEmotion = async (emotion) => {
   const playlistData = await fetchPlaylist(emotion);
@@ -100,25 +122,15 @@ const previousSong = () => {
     }
   };
 
-  // Re-fetch music when emotion changes
-  const handleEmotionUpdate = async (newEmotion, newConfidence) => {
-    setCurrentEmotion(newEmotion);
-    setConfidence(newConfidence);
-    setCameraActive(true);
-    
-    try {
-     await loadPlaylistForEmotion(newEmotion);
-      
-      // Update history logs state & trends instantly for real-time responsiveness
-      const updatedLogs = await fetchCSVHistory();
-      setHistoryLogs(updatedLogs);
-      
-      const trends = await fetchEmotionTrends();
-      setChartData(trends);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+ const handleEmotionUpdate = async (newEmotion, newConfidence) => {
+  setCameraActive(true);
+
+  // Ignore low-confidence detections entirely
+  if (newConfidence < 0.3) {
+    console.log("Ignored low-confidence detection:", newEmotion, newConfidence);
+    return;
+  }
+};
 
   const handleConfigChange = (newMethod) => {
     setPlaybackMethod(newMethod);
