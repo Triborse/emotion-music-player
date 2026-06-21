@@ -5,8 +5,8 @@ from fastapi.responses import FileResponse
 
 router = APIRouter()
 
-MUSIC_DIR = "backend/music"
-
+MUSIC_DIR = "music"
+print("Current working directory:", os.getcwd())
 
 @router.get("/recommend/{emotion}")
 def recommend_song(emotion: str):
