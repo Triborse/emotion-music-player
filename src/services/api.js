@@ -194,78 +194,28 @@ export const updateFavorites = async (updatedFavorites) => {
   return favorites;
 };
 
-// CSV logs endpoints
 export const fetchCSVHistory = async () => {
-  await new Promise(resolve => setTimeout(resolve, 400));
-  return history;
+  const response = await axios.get('http://localhost:8000/history');
+  return response.data;
 };
 
 export const addCSVHistoryEntry = async (emotion, confidence, songPlayed) => {
-  await new Promise(resolve => setTimeout(resolve, 200));
-  const newEntry = {
-    timestamp: new Date().toISOString(),
+  const response = await axios.post('http://localhost:8000/history/log', {
     emotion,
     confidence: parseFloat(confidence),
-    playbackMethod: playbackConfig.method,
-    songPlayed
-  };
-  history = [newEntry, ...history];
-  setStoredData(STORAGE_KEYS.HISTORY, history);
-  return history;
+    channel: "Local Playlist",
+    song: songPlayed
+  });
+  return response.data;
 };
 
 export const clearCSVHistory = async () => {
-  await new Promise(resolve => setTimeout(resolve, 300));
-  history = [];
-  setStoredData(STORAGE_KEYS.HISTORY, history);
-  return history;
+  const response = await axios.delete('http://localhost:8000/history');
+  return response.data;
 };
-
-// Trends calculations based on CSV logs
 export const fetchEmotionTrends = async () => {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  
-  // Create last 7 hourly labels or just use the log timestamps
-  const lastLogs = [...history].reverse().slice(-7);
-  
-  const labels = lastLogs.map(log => {
-    const d = new Date(log.timestamp);
-    return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
-  });
-
-  // Calculate trends for standard positive emotion levels vs negative
-  const happinessData = lastLogs.map(log => {
-    if (log.emotion === 'Happy') return Math.round(log.confidence * 100);
-    if (log.emotion === 'Energetic') return Math.round(log.confidence * 85);
-    if (log.emotion === 'Calm') return Math.round(log.confidence * 60);
-    if (log.emotion === 'Neutral') return Math.round(log.confidence * 50);
-    return Math.round(log.confidence * 20); // Sad
-  });
-
-  const sadnessData = lastLogs.map(log => {
-    if (log.emotion === 'Sad') return Math.round(log.confidence * 100);
-    if (log.emotion === 'Neutral') return Math.round(log.confidence * 30);
-    if (log.emotion === 'Calm') return Math.round(log.confidence * 20);
-    return Math.round(log.confidence * 10);
-  });
-
-  return {
-    labels: labels.length > 0 ? labels : ['10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00'],
-    datasets: [
-      {
-        label: 'Happiness Index',
-        data: happinessData.length > 0 ? happinessData : [30, 45, 55, 60, 80, 85, 90],
-        borderColor: '#3b82f6', // primary blue
-        tension: 0.4,
-      },
-      {
-        label: 'Sadness Index',
-        data: sadnessData.length > 0 ? sadnessData : [50, 40, 30, 25, 10, 15, 5],
-        borderColor: '#8b5cf6', // secondary violet
-        tension: 0.4,
-      }
-    ]
-  };
+  const response = await axios.get('http://localhost:8000/trends');
+  return response.data;
 };
 
 export default api;

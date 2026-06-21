@@ -11,7 +11,8 @@ import {
   fetchPlaylist,
   fetchEmotionTrends,
   fetchPlaybackConfig,
-  fetchCSVHistory
+  fetchCSVHistory,
+  addCSVHistoryEntry
 } from './services/api';
 
 function App() {
@@ -81,6 +82,30 @@ const loadPlaylistForEmotion = async (emotion) => {
   setCurrentSongIndex(randomIndex);
   setCurrentSong(buildSongObject(emotion, playlistData.songs[randomIndex]));
 };
+const loadPlaylistForEmotion = async (emotion) => {
+  const playlistData = await fetchPlaylist(emotion);
+
+  if (playlistData.error || !playlistData.songs || playlistData.songs.length === 0) {
+    console.warn("No playlist found:", playlistData.error);
+    setPlaylist([]);
+    setCurrentSong(null);
+    return;
+  }
+
+  setPlaylist(playlistData.songs);
+
+  const randomIndex = Math.floor(Math.random() * playlistData.songs.length);
+  const chosenSong = playlistData.songs[randomIndex];
+
+  setCurrentSongIndex(randomIndex);
+  setCurrentSong(buildSongObject(emotion, chosenSong));
+
+  try {
+    await addCSVHistoryEntry(emotion, confidence, chosenSong);
+  } catch (err) {
+    console.error("Failed to log history entry:", err);
+  }
+};
 
 const nextSong = () => {
   if (playlist.length === 0) return;
@@ -122,15 +147,31 @@ const previousSong = () => {
     }
   };
 
- const handleEmotionUpdate = async (newEmotion, newConfidence) => {
+  // Re-fetch music when emotion changes
+  const handleEmotionUpdate = async (newEmotion, newConfidence) => {
+  setConfidence(newConfidence);
   setCameraActive(true);
 
-  // Ignore low-confidence detections entirely
-  if (newConfidence < 0.3) {
-    console.log("Ignored low-confidence detection:", newEmotion, newConfidence);
+  // Only switch the playlist/song if the emotion actually changed
+  if (newEmotion === currentEmotion) {
     return;
   }
-};
+
+  setCurrentEmotion(newEmotion);
+    
+    try {
+     await loadPlaylistForEmotion(newEmotion);
+      
+      // Update history logs state & trends instantly for real-time responsiveness
+      const updatedLogs = await fetchCSVHistory();
+      setHistoryLogs(updatedLogs);
+      
+      const trends = await fetchEmotionTrends();
+      setChartData(trends);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const handleConfigChange = (newMethod) => {
     setPlaybackMethod(newMethod);
