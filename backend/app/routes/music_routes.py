@@ -5,7 +5,7 @@ from fastapi.responses import FileResponse
 
 router = APIRouter()
 
-MUSIC_DIR = "music"
+MUSIC_DIR = "backend/music"
 
 
 @router.get("/recommend/{emotion}")
