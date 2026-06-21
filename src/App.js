@@ -43,6 +43,16 @@ function App() {
   emotionData.emotion
 );
 
+console.log(
+  "SONG DATA:",
+  JSON.stringify(songData, null, 2)
+);
+
+console.log(
+  "AUDIO URL:",
+  `http://localhost:8000/song/${songData.emotion}/${songData.song}`
+);
+
 setCurrentSong({
   title: songData.song,
   artist: "Aura Music Engine",
