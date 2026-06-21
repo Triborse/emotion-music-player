@@ -11,13 +11,17 @@ MUSIC_DIR = "music"
 @router.get("/recommend/{emotion}")
 def recommend_song(emotion: str):
 
-    emotion_folder = os.path.join(MUSIC_DIR, emotion)
+    emotion_folder = os.path.join(
+        MUSIC_DIR,
+        emotion
+    )
+
+    print("Looking for:", emotion_folder)
 
     if not os.path.exists(emotion_folder):
         return {
             "error": "Emotion folder not found"
         }
-
     songs = [
         file
         for file in os.listdir(emotion_folder)
