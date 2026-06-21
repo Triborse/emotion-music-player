@@ -66,22 +66,7 @@ const getMajorityEmotion = (buffer) => {
   return majorityEmotion;
 };
 
-const loadPlaylistForEmotion = async (emotion) => {
-  const playlistData = await fetchPlaylist(emotion);
 
-  if (playlistData.error || !playlistData.songs || playlistData.songs.length === 0) {
-    console.warn("No playlist found:", playlistData.error);
-    setPlaylist([]);
-    setCurrentSong(null);
-    return;
-  }
-
-  setPlaylist(playlistData.songs);
-
-  const randomIndex = Math.floor(Math.random() * playlistData.songs.length);
-  setCurrentSongIndex(randomIndex);
-  setCurrentSong(buildSongObject(emotion, playlistData.songs[randomIndex]));
-};
 const loadPlaylistForEmotion = async (emotion) => {
   const playlistData = await fetchPlaylist(emotion);
 

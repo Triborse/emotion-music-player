@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   setMockEmotion,
-  addCSVHistoryEntry,
   predictEmotion
 } from '../services/api';
 
@@ -108,18 +107,19 @@ const captureFrame = () => {
 
   const result = await predictEmotion(imageBlob);
 
-  const emotion = result.emotion;
-  const confidence = result.confidence;
+if (result.face_detected === false) {
+  setTelemetry(prev => ({ ...prev, faceDetected: false }));
+  return;
+}
 
-  setMockEmotion(emotion, confidence);
+setTelemetry(prev => ({ ...prev, faceDetected: true }));
 
-  await addCSVHistoryEntry(
-    emotion,
-    confidence,
-    currentSongName || "Detected Track"
-  );
+const emotion = result.emotion;
+const confidence = result.confidence;
 
-  onEmotionDetected(emotion, confidence);
+setMockEmotion(emotion, confidence);
+
+onEmotionDetected(emotion, confidence);
 
 } catch (error) {
   console.error("Prediction failed:", error);
@@ -135,11 +135,11 @@ const captureFrame = () => {
   };
 
   const handleManualTrigger = (emo) => {
-    const conf = parseFloat((0.80 + Math.random() * 0.18).toFixed(2));
-    setMockEmotion(emo, conf);
-    addCSVHistoryEntry(emo, conf, currentSongName || 'Static Stream');
-    onEmotionDetected(emo, conf);
-  };
+  const conf = parseFloat((0.80 + Math.random() * 0.18).toFixed(2));
+  setMockEmotion(emo, conf);
+  onEmotionDetected(emo, conf);
+};
+  
 
   return (
     <div className="glass-panel rounded-2xl overflow-hidden flex flex-col border border-slate-700/40 relative shadow-2xl">

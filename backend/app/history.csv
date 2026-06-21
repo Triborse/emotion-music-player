@@ -1,0 +1,21 @@
+timestamp,emotion,confidence,channel,song
+2026-06-22T01:46:09.668320,Sad,0.88,Local Playlist,sad3.mp3
+2026-06-22T01:46:11.845471,Happy,0.88,Local Playlist,happy1.mp3
+2026-06-22T01:46:14.818768,Happy,0.88,Local Playlist,happy4.mp3
+2026-06-22T01:50:35.374103,Sad,0.9852,Local Playlist,sad3.mp3
+2026-06-22T01:50:37.447499,Sad,0.9852,Local Playlist,sad3.mp3
+2026-06-22T01:50:40.452988,Sad,0.9852,Local Playlist,sad4.mp3
+2026-06-22T01:50:43.400420,Sad,0.9852,Local Playlist,sad4.mp3
+2026-06-22T01:50:46.427534,Sad,0.9852,Local Playlist,sad1.mp3
+2026-06-22T01:50:49.423694,Sad,0.9852,Local Playlist,sad1.mp3
+2026-06-22T01:50:52.422723,Sad,0.9852,Local Playlist,sad4.mp3
+2026-06-22T01:50:55.384874,Sad,0.9852,Local Playlist,sad1.mp3
+2026-06-22T01:50:58.432696,Sad,0.9852,Local Playlist,sad2.mp3
+2026-06-22T01:56:03.849805,Happy,0.8625,Local Playlist,happy5.mp3
+2026-06-22T01:56:05.938303,Happy,0.8625,Local Playlist,happy5.mp3
+2026-06-22T01:56:08.885095,Surprise,0.8625,Local Playlist,surprise2.mp3
+2026-06-22T01:57:57.024064,Happy,0.6378,Local Playlist,happy4.mp3
+2026-06-22T01:57:59.337531,Happy,0.6378,Local Playlist,happy5.mp3
+2026-06-22T01:58:38.145610,Sad,0.6378,Local Playlist,sad4.mp3
+2026-06-22T01:58:41.134163,Sad,0.6378,Local Playlist,sad3.mp3
+2026-06-22T02:18:27.110491,Energetic,0.2376,Local Playlist,energetic3.mp3

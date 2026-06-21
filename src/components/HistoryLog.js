@@ -49,10 +49,10 @@ const HistoryLog = ({ historyData, onHistoryCleared }) => {
     
     // Rows
     history.forEach(row => {
-      const formattedTime = new Date(row.timestamp).toISOString();
-      const escapedTitle = row.songPlayed.replace(/"/g, '""');
-      csvContent += `"${formattedTime}","${row.emotion}",${row.confidence},"${row.playbackMethod}","${escapedTitle}"\n`;
-    });
+  const formattedTime = new Date(row.timestamp).toISOString();
+  const escapedTitle = (row.song || '').replace(/"/g, '""');
+  csvContent += `"${formattedTime}","${row.emotion}",${row.confidence},"${row.channel}","${escapedTitle}"\n`;
+});
     
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
@@ -269,14 +269,14 @@ const HistoryLog = ({ historyData, onHistoryCleared }) => {
                       </td>
                       <td className="px-4 py-3">
                         <span className={`text-[10px] font-bold ${
-                          row.playbackMethod === 'Pygame' ? 'text-amber-400' : 'text-emerald-400'
-                        }`}>
-                          {row.playbackMethod}
+                            row.channel === 'Pygame' ? 'text-amber-400' : 'text-emerald-400'
+                            }`}>
+                           {row.channel}
                         </span>
-                      </td>
-                      <td className="px-4 py-3 font-medium text-white truncate max-w-[200px]" title={row.songPlayed}>
-                        {row.songPlayed}
-                      </td>
+</td>
+<td className="px-4 py-3 font-medium text-white truncate max-w-[200px]" title={row.song}>
+  {row.song}
+</td>
                     </tr>
                   );
                 })

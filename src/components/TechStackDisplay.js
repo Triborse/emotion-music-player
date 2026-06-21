@@ -11,14 +11,14 @@ const techDetails = {
     color: 'border-cyan-500/30 text-cyan-400 bg-cyan-500/5 hover:shadow-cyan-500/10'
   },
   backend: {
-    title: '💻 Backend API Server',
-    techs: [
-      { name: 'Python Flask', desc: 'Standard micro-framework running local RESTful endpoints. Controls active media servers, manages song database operations, and triggers external application layers.', badge: 'REST API' },
-      { name: 'Pandas', desc: 'Aggregates long-term emotion logs stored in CSV format, providing quick analytical operations like emotion averages, mood intensity counts, and weekly stats.', badge: 'Data Science' }
-    ],
-    code: 'from flask import Flask, jsonify\nimport pandas as pd\n\napp = Flask(__name__)\n\n@app.route("/api/emotion", methods=["POST"])\ndef process_emotion():\n    df = pd.read_csv("emotion_history.csv")\n    summary = df["emotion"].value_counts().to_dict()\n    return jsonify({"trends": summary})',
-    color: 'border-emerald-500/30 text-emerald-400 bg-emerald-500/5 hover:shadow-emerald-500/10'
-  },
+  title: '💻 Backend API Server',
+  techs: [
+    { name: 'FastAPI', desc: 'High-performance async Python framework running local RESTful endpoints. Handles emotion prediction requests, manages the local song catalog, and serves audio files directly to the frontend.', badge: 'REST API' },
+    { name: 'Pandas', desc: 'Aggregates long-term emotion logs stored in CSV format, providing quick analytical operations like emotion averages, mood intensity counts, and weekly stats.', badge: 'Data Science' }
+  ],
+  code: 'from fastapi import FastAPI\nimport pandas as pd\n\napp = FastAPI()\n\n@app.get("/trends")\ndef get_trends():\n    df = pd.read_csv("history.csv")\n    summary = df["emotion"].value_counts().to_dict()\n    return {"trends": summary}',
+  color: 'border-emerald-500/30 text-emerald-400 bg-emerald-500/5 hover:shadow-emerald-500/10'
+},
   frontend: {
     title: '🎨 Frontend Dashboard',
     techs: [
@@ -29,14 +29,14 @@ const techDetails = {
     color: 'border-primary/30 text-primary bg-primary/5 hover:shadow-primary/10'
   },
   media: {
-    title: '🎵 Media Handlers',
-    techs: [
-      { name: 'Pygame', desc: 'Utilizes Pygame mixer modules to directly play high-fidelity local audio files on system speaker nodes. Fully simulated in the dashboard.', badge: 'Local Audio Mixer' },
-      { name: 'Webbrowser Module', desc: 'Invokes standard system commands to open default browser clients pointing directly to dynamic YouTube search requests or Spotify public playlists.', badge: 'Web Integration' }
-    ],
-    code: 'import pygame\nimport webbrowser\n\ndef play_music(song_path, url, play_local=True):\n    if play_local:\n        pygame.mixer.init()\n        pygame.mixer.music.load(song_path)\n        pygame.mixer.music.play()\n    else:\n        webbrowser.open(url)',
-    color: 'border-amber-500/30 text-amber-400 bg-amber-500/5 hover:shadow-amber-500/10'
-  },
+  title: '🎵 Media Handlers',
+  techs: [
+    { name: 'FastAPI FileResponse', desc: 'Serves local MP3 files directly to the browser as streamable audio responses, mapped by emotion folder and filename.', badge: 'Audio Streaming' },
+    { name: 'HTML5 Audio API', desc: 'Plays streamed audio natively in the browser via the <audio> element, with real-time playback events (timeupdate, ended) driving the UI progress bar and auto-advance logic.', badge: 'Browser Native' }
+  ],
+  code: '@router.get("/song/{emotion}/{filename}")\ndef get_song(emotion: str, filename: str):\n    file_path = os.path.join(MUSIC_DIR, emotion, filename)\n    return FileResponse(\n        file_path,\n        media_type="audio/mpeg"\n    )',
+  color: 'border-amber-500/30 text-amber-400 bg-amber-500/5 hover:shadow-amber-500/10'
+},
   database: {
     title: '💾 Database & Storage',
     techs: [
@@ -71,8 +71,8 @@ const TechStackDisplay = () => {
           <p className="text-xs text-slate-400 mt-1">Explore the modules powering this emotion-based player system.</p>
         </div>
         <div className="bg-slate-950/50 border border-slate-800/80 rounded-lg px-2 py-1 text-[10px] text-cyan-400 font-mono cyber-text">
-          FLOW: CV_CAPTURE -> VGG_FACE_CNN -> FLASK_MIXER
-        </div>
+          FLOW: CV_CAPTURE -> VGG_FACE_CNN -> FASTAPI_AUDIO
+       </div>
       </div>
 
       {/* Graphical Flowchart Schematic */}
@@ -98,11 +98,11 @@ const TechStackDisplay = () => {
           <div className="text-slate-600">➔</div>
 
           <div className="flex flex-col items-center">
-            <div className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/40 px-3 py-2 rounded-lg text-center font-bold shadow-[0_0_10px_rgba(16,185,129,0.1)]">
-              💻 Flask Backend
-            </div>
-            <span className="text-slate-600 mt-1">REST Controllers</span>
-          </div>
+  <div className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/40 px-3 py-2 rounded-lg text-center font-bold shadow-[0_0_10px_rgba(16,185,129,0.1)]">
+    💻 FastAPI Backend
+  </div>
+  <span className="text-slate-600 mt-1">REST Controllers</span>
+</div>
 
           <div className="text-slate-600">➔</div>
 
@@ -116,11 +116,11 @@ const TechStackDisplay = () => {
           <div className="text-slate-600">➔</div>
 
           <div className="flex flex-col items-center">
-            <div className="bg-amber-500/10 text-amber-400 border border-amber-500/40 px-3 py-2 rounded-lg text-center font-bold shadow-[0_0_10px_rgba(245,158,11,0.1)]">
-              🎵 Pygame / Spotify
-            </div>
-            <span className="text-slate-600 mt-1">Media Playback</span>
-          </div>
+  <div className="bg-amber-500/10 text-amber-400 border border-amber-500/40 px-3 py-2 rounded-lg text-center font-bold shadow-[0_0_10px_rgba(245,158,11,0.1)]">
+    🎵 HTML5 Audio
+  </div>
+  <span className="text-slate-600 mt-1">Media Playback</span>
+</div>
 
         </div>
       </div>

@@ -53,7 +53,7 @@ def predict():
         "emotion": EMOTIONS[emotion_index],
         "confidence": round(confidence, 4)
     }
-
+  
 @app.post("/upload")
 async def upload_image(file: UploadFile = File(...)):
 
@@ -70,14 +70,19 @@ async def upload_image(file: UploadFile = File(...)):
         minSize=(50, 50)
     )
 
-    if len(faces) > 0:
-        x, y, w, h = max(
-            faces,
-            key=lambda face: face[2] * face[3]
-        )
+    if len(faces) == 0:
+        return {
+            "emotion": None,
+            "confidence": 0,
+            "face_detected": False
+        }
 
-        image = image[y:y+h, x:x+w]
+    x, y, w, h = max(
+        faces,
+        key=lambda face: face[2] * face[3]
+    )
 
+    image = image[y:y+h, x:x+w]
     image = cv2.resize(image, (48, 48))
 
     image = image.astype("float32") / 255.0
