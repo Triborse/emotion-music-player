@@ -106,20 +106,18 @@ setCurrentSong({
   };
 
   const handleFavoritesChange = async () => {
-  if (!currentEmotion) return;
+  if (currentEmotion) {
+    const songData = await fetchBackendSong(currentEmotion);
 
-  const songData = await fetchBackendSong(
-    currentEmotion
-  );
-
-  setCurrentSong({
-    title: songData.song,
-    artist: "Aura Music Engine",
-    emotion: songData.emotion,
-    audioUrl: `http://localhost:8000/song/${songData.emotion}/${songData.song}`,
-    albumArt:
-      "https://images.unsplash.com/photo-1493225457124-a1a2a5f5f92d"
-  });
+    setCurrentSong({
+      title: songData.song,
+      artist: "Aura Music Engine",
+      emotion: songData.emotion,
+      audioUrl: `http://localhost:8000/song/${songData.emotion}/${songData.song}`,
+      albumArt:
+        "https://images.unsplash.com/photo-1493225457124-a1a2a5f5f92d"
+    });
+  }
 };
 
   const handleLogsPurged = () => {
