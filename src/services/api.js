@@ -1,5 +1,13 @@
 import axios from 'axios';
 
+export const fetchBackendSong = async (emotion) => {
+  const response = await axios.get(
+    `http://localhost:8000/recommend/${emotion}`
+  );
+
+  return response.data;
+};
+
 // Example Axios instance that can connect to the Flask backend later
 const api = axios.create({
   baseURL: 'http://localhost:5000/api', 

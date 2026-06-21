@@ -5,12 +5,12 @@ import EmotionTrendsChart from './components/EmotionTrendsChart';
 import TechStackDisplay from './components/TechStackDisplay';
 import FavoritesManager from './components/FavoritesManager';
 import HistoryLog from './components/HistoryLog';
-import { 
-  fetchCurrentEmotion, 
-  fetchRecommendedMusic, 
-  fetchEmotionTrends, 
-  fetchPlaybackConfig, 
-  fetchCSVHistory 
+import {
+  fetchCurrentEmotion,
+  fetchBackendSong,
+  fetchEmotionTrends,
+  fetchPlaybackConfig,
+  fetchCSVHistory
 } from './services/api';
 
 function App() {
@@ -39,9 +39,18 @@ function App() {
       setCurrentEmotion(emotionData.emotion);
       setConfidence(emotionData.confidence);
 
-      const song = await fetchRecommendedMusic(emotionData.emotion);
-      setCurrentSong(song);
+      const songData = await fetchBackendSong(
+  emotionData.emotion
+);
 
+setCurrentSong({
+  title: songData.song,
+  artist: "Aura Music Engine",
+  emotion: songData.emotion,
+  audioUrl: `http://localhost:8000/song/${songData.emotion}/${songData.song}`,
+  albumArt:
+    "https://images.unsplash.com/photo-1493225457124-a1a2a5f5f92d"
+});
       // 2. Fetch config playback method
       const config = await fetchPlaybackConfig();
       setPlaybackMethod(config.method);
@@ -66,8 +75,18 @@ function App() {
     setCameraActive(true);
     
     try {
-      const song = await fetchRecommendedMusic(newEmotion);
-      setCurrentSong(song);
+      const songData = await fetchBackendSong(
+  newEmotion
+);
+
+setCurrentSong({
+  title: songData.song,
+  artist: "Aura Music Engine",
+  emotion: songData.emotion,
+  audioUrl: `http://localhost:8000/song/${songData.emotion}/${songData.song}`,
+  albumArt:
+    "https://images.unsplash.com/photo-1493225457124-a1a2a5f5f92d"
+});
       
       // Update history logs state & trends instantly for real-time responsiveness
       const updatedLogs = await fetchCSVHistory();
@@ -87,12 +106,21 @@ function App() {
   };
 
   const handleFavoritesChange = async () => {
-    // If the favorites mappings updated, refresh currently playing track
-    if (currentEmotion) {
-      const song = await fetchRecommendedMusic(currentEmotion);
-      setCurrentSong(song);
-    }
-  };
+  if (!currentEmotion) return;
+
+  const songData = await fetchBackendSong(
+    currentEmotion
+  );
+
+  setCurrentSong({
+    title: songData.song,
+    artist: "Aura Music Engine",
+    emotion: songData.emotion,
+    audioUrl: `http://localhost:8000/song/${songData.emotion}/${songData.song}`,
+    albumArt:
+      "https://images.unsplash.com/photo-1493225457124-a1a2a5f5f92d"
+  });
+};
 
   const handleLogsPurged = () => {
     setHistoryLogs([]);
