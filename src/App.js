@@ -8,6 +8,7 @@ import HistoryLog from './components/HistoryLog';
 import {
   fetchCurrentEmotion,
   fetchBackendSong,
+  fetchPlaylist,
   fetchEmotionTrends,
   fetchPlaybackConfig,
   fetchCSVHistory
@@ -24,6 +25,8 @@ function App() {
   const [playbackMethod, setPlaybackMethod] = useState('Spotify');
   const [historyLogs, setHistoryLogs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [playlist, setPlaylist] = useState([]);
+const [currentSongIndex, setCurrentSongIndex] = useState(0);
 
   // Status simulation heartbeats
   const [cameraActive, setCameraActive] = useState(false);
@@ -32,6 +35,47 @@ function App() {
     initializeApp();
   }, []);
 
+  const buildSongObject = (emotion, filename) => ({
+  title: filename,
+  artist: "Aura Music Engine",
+  emotion: emotion,
+  audioUrl: `http://localhost:8000/song/${emotion}/${filename}`,
+  albumArt: "https://images.unsplash.com/photo-1493225457124-a1a2a5f5f92d"
+});
+
+const loadPlaylistForEmotion = async (emotion) => {
+  const playlistData = await fetchPlaylist(emotion);
+
+  if (playlistData.error || !playlistData.songs || playlistData.songs.length === 0) {
+    console.warn("No playlist found:", playlistData.error);
+    setPlaylist([]);
+    setCurrentSong(null);
+    return;
+  }
+
+  setPlaylist(playlistData.songs);
+
+  const randomIndex = Math.floor(Math.random() * playlistData.songs.length);
+  setCurrentSongIndex(randomIndex);
+  setCurrentSong(buildSongObject(emotion, playlistData.songs[randomIndex]));
+};
+
+const nextSong = () => {
+  if (playlist.length === 0) return;
+
+  const nextIndex = (currentSongIndex + 1) % playlist.length;
+  setCurrentSongIndex(nextIndex);
+  setCurrentSong(buildSongObject(currentEmotion, playlist[nextIndex]));
+};
+
+const previousSong = () => {
+  if (playlist.length === 0) return;
+
+  const prevIndex = (currentSongIndex - 1 + playlist.length) % playlist.length;
+  setCurrentSongIndex(prevIndex);
+  setCurrentSong(buildSongObject(currentEmotion, playlist[prevIndex]));
+};
+
   const initializeApp = async () => {
     try {
       // 1. Fetch initial emotion & recommended track
@@ -39,29 +83,7 @@ function App() {
       setCurrentEmotion(emotionData.emotion);
       setConfidence(emotionData.confidence);
 
-      const songData = await fetchBackendSong(
-  emotionData.emotion
-);
-
-console.log(
-  "SONG DATA:",
-  JSON.stringify(songData, null, 2)
-);
-
-console.log(
-  "AUDIO URL:",
-  `http://localhost:8000/song/${songData.emotion}/${songData.song}`
-);
-
-setCurrentSong({
-  title: songData.song,
-  artist: "Aura Music Engine",
-  emotion: songData.emotion,
-  audioUrl: `http://localhost:8000/song/${songData.emotion}/${songData.song}`,
-  albumArt:
-    "https://images.unsplash.com/photo-1493225457124-a1a2a5f5f92d"
-});
-      // 2. Fetch config playback method
+     // 2. Fetch config playback method
       const config = await fetchPlaybackConfig();
       setPlaybackMethod(config.method);
 
@@ -85,18 +107,7 @@ setCurrentSong({
     setCameraActive(true);
     
     try {
-      const songData = await fetchBackendSong(
-  newEmotion
-);
-console.log("SONG DATA:", songData);
-setCurrentSong({
-  title: songData.song,
-  artist: "Aura Music Engine",
-  emotion: songData.emotion,
-  audioUrl: `http://localhost:8000/song/${songData.emotion}/${songData.song}`,
-  albumArt:
-    "https://images.unsplash.com/photo-1493225457124-a1a2a5f5f92d"
-});
+     await loadPlaylistForEmotion(newEmotion);
       
       // Update history logs state & trends instantly for real-time responsiveness
       const updatedLogs = await fetchCSVHistory();
@@ -117,16 +128,7 @@ setCurrentSong({
 
   const handleFavoritesChange = async () => {
   if (currentEmotion) {
-    const songData = await fetchBackendSong(currentEmotion);
-
-    setCurrentSong({
-      title: songData.song,
-      artist: "Aura Music Engine",
-      emotion: songData.emotion,
-      audioUrl: `http://localhost:8000/song/${songData.emotion}/${songData.song}`,
-      albumArt:
-        "https://images.unsplash.com/photo-1493225457124-a1a2a5f5f92d"
-    });
+    await loadPlaylistForEmotion(currentEmotion);
   }
 };
 
@@ -272,10 +274,12 @@ setCurrentSong({
                 
                 {/* Music Player */}
                 <div className="flex-1">
-                  <MusicPlayer 
-                    currentSong={currentSong} 
-                    playbackMethod={playbackMethod} 
-                  />
+                  <MusicPlayer
+                    currentSong={currentSong}
+                    playbackMethod={playbackMethod}
+                    onNext={nextSong}
+                    onPrevious={previousSong}
+                    />
                 </div>
 
                 {/* Live Trends Chart */}

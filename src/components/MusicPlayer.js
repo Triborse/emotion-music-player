@@ -1,26 +1,34 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-const MusicPlayer = ({ currentSong, playbackMethod }) => {
+  const MusicPlayer = ({ currentSong, playbackMethod, onNext, onPrevious }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(35);
   const audioRef = useRef(null);
 
-  // Playback timer simulation
-  useEffect(() => {
-    let timer;
-    if (isPlaying) {
-      timer = setInterval(() => {
-        setProgress(prev => {
-          if (prev >= 100) {
-            setIsPlaying(false);
-            return 0;
-          }
-          return prev + 1;
-        });
-      }, 1000);
+  // Sync progress + stop with the real <audio> element
+useEffect(() => {
+  const audio = audioRef.current;
+  if (!audio) return;
+
+  const handleTimeUpdate = () => {
+    if (audio.duration) {
+      setProgress((audio.currentTime / audio.duration) * 100);
     }
-    return () => clearInterval(timer);
-  }, [isPlaying]);
+  };
+
+  const handleEnded = () => {
+    setIsPlaying(false);
+    setProgress(0);
+  };
+
+  audio.addEventListener('timeupdate', handleTimeUpdate);
+  audio.addEventListener('ended', handleEnded);
+
+  return () => {
+    audio.removeEventListener('timeupdate', handleTimeUpdate);
+    audio.removeEventListener('ended', handleEnded);
+  };
+}, [currentSong]);
 
   // Reset progress when song changes
  useEffect(() => {
@@ -36,7 +44,20 @@ const MusicPlayer = ({ currentSong, playbackMethod }) => {
   }
 }, [currentSong]);
 
-  const togglePlay = () => setIsPlaying(!isPlaying);
+  const togglePlay = () => {
+  const audio = audioRef.current;
+  if (!audio) return;
+
+  if (isPlaying) {
+    audio.pause();
+    setIsPlaying(false);
+  } else {
+    audio.play().catch((err) => {
+      console.log("Play blocked:", err);
+    });
+    setIsPlaying(true);
+  }
+};
 
   if (!currentSong) {
     return (
@@ -147,47 +168,46 @@ const MusicPlayer = ({ currentSong, playbackMethod }) => {
         <div className="flex flex-col space-y-4">
           
           {/* Main Controls row */}
-          <div className="flex items-center justify-center space-x-6">
-            <button className="text-slate-500 hover:text-white transition-colors p-2">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-            </button>
-            
-            <button className="text-slate-400 hover:text-white transition-colors p-2">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M8.445 14.832A1 1 0 0010 14v-2.798l5.445 3.63A1 1 0 0017 14V6a1 1 0 00-1.555-.832L10 8.798V6a1 1 0 00-1.555-.832l-6 4a1 1 0 000 1.664l6 4z" />
-              </svg>
-            </button>
-            
-            <button 
-              onClick={togglePlay}
-              className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 rounded-full p-4 shadow-lg shadow-cyan-500/20 transform transition-all active:scale-95 hover:scale-105"
-            >
-              {isPlaying ? (
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                </svg>
-              ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 pl-1" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
-                </svg>
-              )}
-            </button>
-            
-            <button className="text-slate-400 hover:text-white transition-colors p-2">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M11.555 5.168A1 1 0 0010 6v2.798l-5.445-3.63A1 1 0 003 6v8a1 1 0 001.555.832L10 11.202V14a1 1 0 001.555.832l6-4a1 1 0 000-1.664l-6-4z" />
-              </svg>
-            </button>
-            
-            <button className="text-slate-500 hover:text-white transition-colors p-2">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-              </svg>
-            </button>
-          </div>
-
+<div className="flex items-center justify-center space-x-6">
+  <button className="text-slate-500 hover:text-white transition-colors p-2">
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+    </svg>
+  </button>
+  
+  <button onClick={onPrevious} className="text-slate-400 hover:text-white transition-colors p-2">
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" viewBox="0 0 20 20" fill="currentColor">
+      <path d="M8.445 14.832A1 1 0 0010 14v-2.798l5.445 3.63A1 1 0 0017 14V6a1 1 0 00-1.555-.832L10 8.798V6a1 1 0 00-1.555-.832l-6 4a1 1 0 000 1.664l6 4z" />
+    </svg>
+  </button>
+  
+  <button 
+    onClick={togglePlay}
+    className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 rounded-full p-4 shadow-lg shadow-cyan-500/20 transform transition-all active:scale-95 hover:scale-105"
+  >
+    {isPlaying ? (
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" viewBox="0 0 20 20" fill="currentColor">
+        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+      </svg>
+    ) : (
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 pl-1" viewBox="0 0 20 20" fill="currentColor">
+        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+      </svg>
+    )}
+  </button>
+  
+  <button onClick={onNext} className="text-slate-400 hover:text-white transition-colors p-2">
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" viewBox="0 0 20 20" fill="currentColor">
+      <path d="M11.555 5.168A1 1 0 0010 6v2.798l-5.445-3.63A1 1 0 003 6v8a1 1 0 001.555.832L10 11.202V14a1 1 0 001.555.832l6-4a1 1 0 000-1.664l-6-4z" />
+    </svg>
+  </button>
+  
+  <button className="text-slate-500 hover:text-white transition-colors p-2">
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+    </svg>
+  </button>
+</div>
           {/* Interactive Integration Details Display */}
           <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-900 flex flex-col space-y-2 mt-2">
             
