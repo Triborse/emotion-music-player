@@ -6,7 +6,7 @@ import cv2
 import json
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes.music_routes import router as music_router
-
+from app.routes.history_routes import router as history_router
 face_cascade = cv2.CascadeClassifier(
     cv2.data.haarcascades +
     "haarcascade_frontalface_default.xml"
@@ -14,6 +14,7 @@ face_cascade = cv2.CascadeClassifier(
 
 app = FastAPI()
 app.include_router(music_router)
+app.include_router(history_router)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],
