@@ -19,3 +19,13 @@ timestamp,emotion,confidence,channel,song
 2026-06-22T01:58:38.145610,Sad,0.6378,Local Playlist,sad4.mp3
 2026-06-22T01:58:41.134163,Sad,0.6378,Local Playlist,sad3.mp3
 2026-06-22T02:18:27.110491,Energetic,0.2376,Local Playlist,energetic3.mp3
+2026-06-22T02:36:48.893888,Happy,0.88,Local Playlist,happy4.mp3
+2026-06-22T02:36:49.658923,Happy,0.88,Local Playlist,happy3.mp3
+2026-06-22T02:36:52.641381,Sad,0.88,Local Playlist,sad5.mp3
+2026-06-22T02:37:01.632187,Happy,0.88,Local Playlist,happy4.mp3
+2026-06-22T02:37:10.635087,Sad,0.88,Local Playlist,sad4.mp3
+2026-06-22T02:37:13.640931,Sad,0.88,Local Playlist,sad4.mp3
+2026-06-22T02:37:16.647419,Sad,0.88,Local Playlist,sad1.mp3
+2026-06-22T02:37:19.635698,Sad,0.88,Local Playlist,sad1.mp3
+2026-06-22T02:37:31.633639,Sad,0.88,Local Playlist,sad2.mp3
+2026-06-22T02:37:34.651339,Sad,0.88,Local Playlist,sad3.mp3

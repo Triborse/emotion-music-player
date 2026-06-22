@@ -82,7 +82,14 @@ async def upload_image(file: UploadFile = File(...)):
         key=lambda face: face[2] * face[3]
     )
 
-    image = image[y:y+h, x:x+w]
+    # Add ~20% padding around the detected face for a more natural crop
+    padding = int(0.2 * w)
+    x1 = max(x - padding, 0)
+    y1 = max(y - padding, 0)
+    x2 = min(x + w + padding, image.shape[1])
+    y2 = min(y + h + padding, image.shape[0])
+
+    image = image[y1:y2, x1:x2]
     image = cv2.resize(image, (48, 48))
 
     image = image.astype("float32") / 255.0
